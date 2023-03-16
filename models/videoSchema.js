@@ -8,6 +8,9 @@ const videoSchema = new Schema({
     date: { type: String, format: Date },
     airCraft: { type: Schema.Types.ObjectId, ref: 'airCraft' },
     place: { type: String },
+    uploaded: { type: Date, default: Date.now },
+    videoPath: { type: String, required: true },
+    filename : { type: String },
     KeyWords: { type: Array, default: []}
     }, {
     versionKey: false,

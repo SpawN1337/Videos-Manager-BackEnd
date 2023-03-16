@@ -26,7 +26,7 @@ exports.login = async (req, res) => {
                 res.status(400).send({ message: 'خطأ في إسم المستخدم أو في كلمة العبور' });
             }
         } else {
-            res.status(400).send({ message: "خطأ في إسم المستخدم و في كلمة العبور" });
+            res.status(400).send({ message: "خطأ في إسم المستخدم أو في كلمة العبور" });
         }
     } catch (error) {
         console.log(error);
