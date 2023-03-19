@@ -43,8 +43,8 @@ exports.register = async (req, res) => {
         } else {
             const hashedPwd = await bcrypt.hash(req.body.password, 10);
             const createdUser = await User.create({
-                firstName: req.body.firstName,
-                lastName: req.body.lastName,
+                firstname: req.body.firstname,
+                lastname: req.body.lastname,
                 username: req.body.username,
                 base: req.body.base,
                 age: req.body.age,

@@ -62,7 +62,7 @@ exports.postVideo = async (req, res) => {
   const uploaded = req.file.uploaded;
   const filename = req.file.filename;
 
-  const videoPath = 'http://192.168.14.4:5000/videos/' + req.file.filename; // Note: set path dynamically
+  const videoPath = 'http://localhost:5000/videos/' + req.file.filename; // Note: set path dynamically
   const video = new Video({
     name,
     filename,
