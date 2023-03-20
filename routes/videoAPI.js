@@ -6,13 +6,13 @@ const VideoController = require('../controllers/videoController')
 const storage = require('../helpers/storage');
 
 // add one Materiel
-router.get('/getuploads', VideoController.getImage);
+router.get('/getuploads', VideoController.getVideo);
 
 // router.post('/addvideo', VideoController.ad)
-router.post('/upload', storage, VideoController.postImage);
+router.post('/upload', storage, VideoController.postVideo);
 
 // Remove one materiel
-router.delete('/removeupload/:id', VideoController.removeImage)
+router.delete('/removeupload/:id', VideoController.removeVideo)
 
 //get all materiels
 // router.get('/allvideos', VideoController.allVideos)
@@ -21,7 +21,7 @@ router.delete('/removeupload/:id', VideoController.removeImage)
 // router.put('/updatevideo/:id', VideoController.updateVideo)
 
 //get materiel by id
-router.get('/getupload/:id', VideoController.getImage)
+router.get('/getupload/:id', VideoController.getVideo)
 
 
 
