@@ -4,7 +4,7 @@ const cors = require('cors')
 const flash = require('connect-flash');//?
 const session = require('express-session');//?
 const bodyParser = require('body-parser');
-
+const path = require('path');
 //Require to use .env
 require('dotenv').config()
 
@@ -24,7 +24,7 @@ require('./database/connect')
 
 //BearerStrategy with passport
 require('./passport/bearerStrategy')
-
+app.use('/images', express.static(path.join('images')));
 // config body parser
 app.use(express.json())
 app.use(bodyParser.json());

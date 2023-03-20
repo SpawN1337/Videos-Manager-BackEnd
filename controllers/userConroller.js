@@ -30,9 +30,11 @@ exports.addUser = async (req, res) => {
 //update user by id
 exports.updateUser = async (req, res) => {
     try {
+        const user = await User.findOne({ username: req.body.username });
         //hash password
+        if(req.body.password != user.password ){
         const hashedPwd = await bcrypt.hash(req.body.password, 10);
-        req.body.password=hashedPwd;
+        req.body.password=hashedPwd;}
         const updatedUser = await User.findByIdAndUpdate(req.params.id,req.body)
         res.json(updatedUser);
     }
