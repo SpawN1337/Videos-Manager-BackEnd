@@ -2,7 +2,7 @@ const multer = require('multer')
 
 const diskStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'images');
+    cb(null, 'videos');
   },
   filename: (req, file, cb) => {
     const mimeType = file.mimetype.split('/');
@@ -18,7 +18,7 @@ const fileFilter = (req, file, cb) => {
 };
 
 const storage = multer({ storage: diskStorage, fileFilter: fileFilter }).single(
-  'image'
+  'video'
 );
 
 module.exports = storage;
