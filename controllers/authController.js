@@ -46,6 +46,7 @@ exports.register = async (req, res) => {
                 firstname: req.body.firstname,
                 lastname: req.body.lastname,
                 username: req.body.username,
+                grade: req.body.grade,
                 role: req.body.role,
                 password: hashedPwd,
             });

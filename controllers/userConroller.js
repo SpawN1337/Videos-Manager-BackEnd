@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt');
 // get all users
 exports.allUsers = async (req, res) => {
     try {
-        const users = await User.find({});
+        const users = await User.find({}).populate('grade');;
         res.json(users);
     }
     catch (err) {

@@ -42,11 +42,13 @@ const userApi = require('./routes/userAPi');
 const authApi = require('./routes/authAPI');
 const videoApi = require('./routes/videoAPI');
 const airCraftApi = require('./routes/airCraftAPI');
+const gradeApi = require('./routes/gradeAPI');
 
 app.use('/api/v1', userApi);
 app.use('/api/v1', authApi);
 app.use('/api/v1', videoApi);
 app.use('/api/v1', airCraftApi);
+app.use('/api/v1', gradeApi);
 
 
 app.listen(port, () => {
