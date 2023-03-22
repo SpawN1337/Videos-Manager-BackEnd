@@ -50,12 +50,20 @@ catch (err) {
 }
 
 exports.postVideo = async (req, res) => {
-  console.log("hereeeee" )
-  const { name } = req.body;
+  console.log("hereeeee",req.body )
+  const  name  = req.body.name;
+  const  aircraft  = req.body.aircraft;
+  const  place  = req.body.place;
+  const  date  = req.body.date;
+  const  tag  = req.body.tag.split(",");
   const filename = req.file.filename;
   const videoPath = 'http://localhost:5000/videos/' + req.file.filename; // Note: set path dynamically
   const video = new Video({
     name,
+    aircraft,
+    place,
+    date,
+    tag,
     filename,
     videoPath,
   });
