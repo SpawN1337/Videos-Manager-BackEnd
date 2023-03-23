@@ -8,39 +8,76 @@ exports.getVideos = async (req, res) => {
     {
       $lookup:
       {
-          from: "aircrafts",
-          localField: "aircraft",
-          foreignField: "_id",
-          as: "aircraft"
+        from: "aircrafts",
+        localField: "aircraft",
+        foreignField: "_id",
+        as: "aircraft"
       }
-  },
-  {
+    },
+    {
       $set: {
         aircraft: "$aircraft.nomAirCraft",
       }
-  },
-  {
-    $project: {
-       name: "$name",
-       aircraft: "$aircraft",
-       place: "$place",
-       tag: "$tag",
-       date: { $dateToString: { format: "%Y-%m-%d", date: "$date" } }
-    }
-  } ]
+    },
+    {
+      $project: {
+        name: "$name",
+        aircraft: "$aircraft",
+        place: "$place",
+        tag: "$tag",
+        date: { $dateToString: { format: "%Y-%m-%d", date: "$date" } }
+      }
+    }]
   const videos = await Video.aggregate(pipeline);
   res.status(200).json({ videos });
 };
 
+const videoFileMap = {
+  '12': 'videos/gg.mp4',
+  'generate-pass': 'videos/gg.mp4',
+  'get-post': 'videos/gg.mp4',
+}
+
 exports.getVideo = async (req, res) => {
-  try {
-    const video = await Video.findById(req.params.id)
-    res.json(video);
+  const video = await Video.findById(req.params.id)
+  const filePath = video.videoPath
+  console.log("ratatata",filePath)
+  if (!filePath) {
+    return res.status(404).send('File not found')
   }
-  catch (err) {
-    console.log(err);
-    res.status(500).json({ message: 'Internal server error' });
+
+  const stat = fs.statSync(filePath);
+  const fileSize = stat.size;
+  const range = req.headers.range;
+
+  if (range) {
+    const parts = range.replace(/bytes=/, '').split('-')
+    const start = parseInt(parts[0], 10);
+    const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+
+    const chunksize = end - start + 1;
+    const file = fs.createReadStream(filePath, { start, end });
+    const head = {
+      'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+      'Accept-Ranges': 'bytes',
+      'Content-Length': chunksize,
+      'Content-Type': 'video/mp4'
+    };
+    res.writeHead(206, head);
+    file.pipe(res);
   }
+  else {
+    const head = {
+      'Content-Length': fileSize,
+      'Content-Type': 'video/mp4'
+    };
+    res.writeHead(200, head);
+    fs.createReadStream(filePath).pipe(res)
+  }
+
+
+
+
 }
 
 //remove by Id Inspecstib Contoller
@@ -63,22 +100,22 @@ exports.updateVideo = async (req, res) => {
   try {
     const updatedVideo = await Video.findByIdAndUpdate(req.params.id, req.body, { new: true })
     res.json(updatedVideo);
-}
-catch (err) {
+  }
+  catch (err) {
     console.log(err);
     res.status(500).json({ message: 'Internal server error' });
-}
-  
+  }
+
 }
 
 exports.postVideo = async (req, res) => {
-  const  name  = req.body.name;
-  const  aircraft  = req.body.aircraft;
-  const  place  = req.body.place;
-  const  date  = req.body.date;
-  const  tag  = req.body.tag.split(",");
+  const name = req.body.name;
+  const aircraft = req.body.aircraft;
+  const place = req.body.place;
+  const date = req.body.date;
+  const tag = req.body.tag.split(",");
   const filename = req.file.filename;
-  const videoPath = 'http://localhost:5000/videos/' + req.file.filename; // Note: set path dynamically
+  const videoPath = 'videos/' + req.file.filename; // Note: set path dynamically
   const video = new Video({
     name,
     aircraft,
