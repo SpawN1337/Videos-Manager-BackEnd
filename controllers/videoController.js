@@ -1,11 +1,33 @@
 const Video = require('../models/videoSchema');
 const fs = require('fs');
-const atob = require('atob')
-const { eq } = require('lodash');
-const { name } = require('ejs');
-exports.getVideos = async (req, res) => {
 
-  var pipeline = [{ $match: {  } }]
+
+
+exports.getVideos = async (req, res) => {
+  var pipeline = [
+    {
+      $lookup:
+      {
+          from: "aircrafts",
+          localField: "aircraft",
+          foreignField: "_id",
+          as: "aircraft"
+      }
+  },
+  {
+      $set: {
+        aircraft: "$aircraft.nomAirCraft",
+      }
+  },
+  {
+    $project: {
+       name: "$name",
+       aircraft: "$aircraft",
+       place: "$place",
+       tag: "$tag",
+       date: { $dateToString: { format: "%Y-%m-%d", date: "$date" } }
+    }
+  } ]
   const videos = await Video.aggregate(pipeline);
   res.status(200).json({ videos });
 };
@@ -50,7 +72,6 @@ catch (err) {
 }
 
 exports.postVideo = async (req, res) => {
-  console.log("hereeeee",req.body )
   const  name  = req.body.name;
   const  aircraft  = req.body.aircraft;
   const  place  = req.body.place;

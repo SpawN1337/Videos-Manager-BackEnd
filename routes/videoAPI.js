@@ -14,8 +14,8 @@ router.post('/upload', storage, VideoController.postVideo);
 // Remove one materiel
 router.delete('/removeupload/:id', VideoController.removeVideo)
 
-//get all materiels
-// router.get('/allvideos', VideoController.allVideos)
+// get all materiels
+router.get('/getvideos', VideoController.getVideos)
 
 // update materiel by id
 // router.put('/updatevideo/:id', VideoController.updateVideo)
