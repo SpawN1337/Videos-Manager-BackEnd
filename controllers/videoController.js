@@ -1,8 +1,59 @@
 const Video = require('../models/videoSchema');
 const fs = require('fs');
+var mongoose = require('mongoose');
+//get all videos
+exports.search = async (req, res) => {
 
 
+  console.log("rata", req.body)
+  var pipeline = [
+    {
+      $lookup:
+      {
+        from: "aircrafts",
+        localField: "aircraft",
+        foreignField: "_id",
+        as: "aircraft"
+      }
+    },
+    {
+      $set: {
+        aircraft: "$aircraft.nomAirCraft",
+      }
+    },
+    {
+      $project: {
+        name: "$name",
+        aircraft: "$aircraft",
+        place: "$place",
+        tag: "$tag",
+        date: { $dateToString: { format: "%Y-%m-%d", date: "$date" } }
+      }
+    }]
+  if (req.body.aircraft != null) {
+    pipeline.unshift({ $match: { "aircraft": mongoose.Types.ObjectId(req.body.aircraft) } });
+  }
+    if ((req.body.start != null) ) {
+      pipeline.unshift({ $match: {  "date": { "$gte": new Date(req.body.start) } } });
+    }
+  if (req.body.end != null) {
+    pipeline.unshift({ $match: { "date": { "$lte": new Date(req.body.end) } } });
+  }
+  if (req.body.words != null) {
+    pipeline.unshift({ $match: { $text: { $search: req.body.words } }});
+  }
+  try {
+    const videos = await Video.aggregate(pipeline);
+    res.status(200).json({ videos });
+  }
+  catch (err) {
+    console.log(err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
 
+
+//get all videos
 exports.getVideos = async (req, res) => {
   var pipeline = [
     {
@@ -32,16 +83,11 @@ exports.getVideos = async (req, res) => {
   res.status(200).json({ videos });
 };
 
-const videoFileMap = {
-  '12': 'videos/gg.mp4',
-  'generate-pass': 'videos/gg.mp4',
-  'get-post': 'videos/gg.mp4',
-}
 
+//watch video
 exports.getVideo = async (req, res) => {
   const video = await Video.findById(req.params.id)
   const filePath = video.videoPath
-  console.log("ratatata",filePath)
   if (!filePath) {
     return res.status(404).send('File not found')
   }
@@ -96,17 +142,17 @@ exports.removeVideo = async (req, res) => {
 }
 
 //update Consominfo by id controller
-exports.updateVideo = async (req, res) => {
-  try {
-    const updatedVideo = await Video.findByIdAndUpdate(req.params.id, req.body, { new: true })
-    res.json(updatedVideo);
-  }
-  catch (err) {
-    console.log(err);
-    res.status(500).json({ message: 'Internal server error' });
-  }
+// exports.updateVideo = async (req, res) => {
+//   try {
+//     const updatedVideo = await Video.findByIdAndUpdate(req.params.id, req.body, { new: true })
+//     res.json(updatedVideo);
+//   }
+//   catch (err) {
+//     console.log(err);
+//     res.status(500).json({ message: 'Internal server error' });
+//   }
 
-}
+// }
 
 exports.postVideo = async (req, res) => {
   const name = req.body.name;

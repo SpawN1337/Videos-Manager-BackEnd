@@ -5,22 +5,25 @@ const router = express.Router();
 const VideoController = require('../controllers/videoController')
 const storage = require('../helpers/storage');
 
-// add one Materiel
+// add one Video
 router.get('/getuploads', VideoController.getVideo);
 
 // router.post('/addvideo', VideoController.ad)
 router.post('/upload', storage, VideoController.postVideo);
 
-// Remove one materiel
+// Remove one Video
 router.delete('/removeupload/:id', VideoController.removeVideo)
 
-// get all materiels
+// search
+router.post('/search', VideoController.search)
+
+// get all Videos
 router.get('/getvideos', VideoController.getVideos)
 
-// update materiel by id
+// update Video by id
 // router.put('/updatevideo/:id', VideoController.updateVideo)
 
-//get materiel by id
+//get Video by id
 router.get('/getupload/:id', VideoController.getVideo)
 
 
