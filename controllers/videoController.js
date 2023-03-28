@@ -33,14 +33,14 @@ exports.search = async (req, res) => {
   if (req.body.aircraft != null) {
     pipeline.unshift({ $match: { "aircraft": mongoose.Types.ObjectId(req.body.aircraft) } });
   }
-    if ((req.body.start != null) ) {
-      pipeline.unshift({ $match: {  "date": { "$gte": new Date(req.body.start) } } });
-    }
+  if ((req.body.start != null)) {
+    pipeline.unshift({ $match: { "date": { "$gte": new Date(req.body.start) } } });
+  }
   if (req.body.end != null) {
     pipeline.unshift({ $match: { "date": { "$lte": new Date(req.body.end) } } });
   }
   if (req.body.words != null) {
-    pipeline.unshift({ $match: { $text: { $search: req.body.words } }});
+    pipeline.unshift({ $match: { $text: { $search: req.body.words } } });
   }
   try {
     const videos = await Video.aggregate(pipeline);
@@ -87,41 +87,47 @@ exports.getVideos = async (req, res) => {
 //watch video
 exports.getVideo = async (req, res) => {
   const video = await Video.findById(req.params.id)
-  const filePath = video.videoPath
-  if (!filePath) {
-    return res.status(404).send('File not found')
+  filePath = video.videoPath
+  try {
+    if (!filePath) {
+      return res.status(500).json({ message: 'لم يتم العثور على الفيديو' });
+      // res.status(404).send('لم يتم العثور على الفيديو')
+    }
+    else {
+      const stat = fs.statSync(filePath);
+      const fileSize = stat.size;
+      const range = req.headers.range;
+
+      if (range) {
+        const parts = range.replace(/bytes=/, '').split('-')
+        const start = parseInt(parts[0], 10);
+        const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+
+        const chunksize = end - start + 1;
+        const file = fs.createReadStream(filePath, { start, end });
+        const head = {
+          'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+          'Accept-Ranges': 'bytes',
+          'Content-Length': chunksize,
+          'Content-Type': 'video/mp4'
+        };
+        res.writeHead(206, head);
+        file.pipe(res);
+      }
+      else {
+        const head = {
+          'Content-Length': fileSize,
+          'Content-Type': 'video/mp4'
+        };
+        res.writeHead(200, head);
+        fs.createReadStream(filePath).pipe(res)
+      }
+    }
   }
-
-  const stat = fs.statSync(filePath);
-  const fileSize = stat.size;
-  const range = req.headers.range;
-
-  if (range) {
-    const parts = range.replace(/bytes=/, '').split('-')
-    const start = parseInt(parts[0], 10);
-    const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
-
-    const chunksize = end - start + 1;
-    const file = fs.createReadStream(filePath, { start, end });
-    const head = {
-      'Content-Range': `bytes ${start}-${end}/${fileSize}`,
-      'Accept-Ranges': 'bytes',
-      'Content-Length': chunksize,
-      'Content-Type': 'video/mp4'
-    };
-    res.writeHead(206, head);
-    file.pipe(res);
+  catch (err) {
+    console.log(err);
+    res.status(500).json({ message: 'لم يتم العثور على الفيديو' });
   }
-  else {
-    const head = {
-      'Content-Length': fileSize,
-      'Content-Type': 'video/mp4'
-    };
-    res.writeHead(200, head);
-    fs.createReadStream(filePath).pipe(res)
-  }
-
-
 
 
 }
