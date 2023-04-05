@@ -52,7 +52,33 @@ exports.search = async (req, res) => {
   }
 };
 
+//dayvideos
+exports.dayvideos = async (req, res) => {
 
+
+  console.log("rata",req.body)
+  var pipeline = [
+    {
+      $project: {
+        name: "$name",
+        aircraft: "$aircraft",
+        place: "$place",
+        tag: "$tag",
+        date: { $dateToString: { format: "%Y-%m-%d", date: "$date" } }
+      }
+    }]
+  // if ((req.body.date != null)) {
+    pipeline.unshift({ $match: { "date": { "$eq": new Date(req.body.date) } } });
+  // }
+  try {
+    const videos = await Video.aggregate(pipeline);
+    res.status(200).json({ videos });
+  }
+  catch (err) {
+    console.log(err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
 //get all videos
 exports.getVideos = async (req, res) => {
   var pipeline = [

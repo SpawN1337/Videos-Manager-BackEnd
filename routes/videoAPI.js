@@ -16,6 +16,8 @@ router.delete('/removeupload/:id', VideoController.removeVideo)
 
 // search
 router.post('/search', VideoController.search)
+//daysearch
+router.post('/dayvideos', VideoController.dayvideos)
 
 // get all Videos
 router.get('/getvideos', VideoController.getVideos)
