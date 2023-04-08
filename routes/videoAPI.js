@@ -28,6 +28,10 @@ router.get('/getvideos', VideoController.getVideos)
 //get Video by id
 router.get('/getupload/:id', VideoController.getVideo)
 
+//get disks
+// router.get('/disk', VideoController.diskslist )
+router.get('/disk', VideoController.disk)
+
 
 
 module.exports = router;

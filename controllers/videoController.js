@@ -1,11 +1,10 @@
 const Video = require('../models/videoSchema');
 const fs = require('fs');
 var mongoose = require('mongoose');
+const si = require('systeminformation');
+
 //get all videos
 exports.search = async (req, res) => {
-
-
-  console.log("rata", req.body)
   var pipeline = [
     {
       $lookup:
@@ -54,10 +53,21 @@ exports.search = async (req, res) => {
 
 //dayvideos
 exports.dayvideos = async (req, res) => {
-
-
-  console.log("rata",req.body)
   var pipeline = [
+    {
+      $lookup:
+      {
+        from: "aircrafts",
+        localField: "aircraft",
+        foreignField: "_id",
+        as: "aircraft"
+      }
+    },
+    {
+      $set: {
+        aircraft: "$aircraft.nomAirCraft",
+      }
+    },
     {
       $project: {
         name: "$name",
@@ -67,9 +77,9 @@ exports.dayvideos = async (req, res) => {
         date: { $dateToString: { format: "%Y-%m-%d", date: "$date" } }
       }
     }]
-  // if ((req.body.date != null)) {
+  if ((req.body.date != null)) {
     pipeline.unshift({ $match: { "date": { "$eq": new Date(req.body.date) } } });
-  // }
+  }
   try {
     const videos = await Video.aggregate(pipeline);
     res.status(200).json({ videos });
@@ -79,6 +89,7 @@ exports.dayvideos = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 //get all videos
 exports.getVideos = async (req, res) => {
   var pipeline = [
@@ -117,14 +128,13 @@ exports.getVideo = async (req, res) => {
   try {
     if (!filePath) {
       return res.status(500).json({ message: 'لم يتم العثور على الفيديو' });
-      // res.status(404).send('لم يتم العثور على الفيديو')
     }
     else {
       const stat = fs.statSync(filePath);
       const fileSize = stat.size;
       let range = req.headers.range;
-      console.log("range",range )
-      if(!range) range = 'bytes=0-'
+      console.log("range", range)
+      if (!range) range = 'bytes=0-'
       if (range) {
         const parts = range.replace(/bytes=/, '').split('-')
         const start = parseInt(parts[0], 10);
@@ -211,3 +221,16 @@ exports.postVideo = async (req, res) => {
     },
   });
 };
+
+//Get disks
+exports.disk = async (req, res) => {
+    try {
+      const disks = await si.fsSize();
+      // const rootDisk = disks.find(disk => disk.mount === '/'); //routDisk
+       res.json(disks);
+    }
+    catch (err) {
+      console.log(err);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  }
