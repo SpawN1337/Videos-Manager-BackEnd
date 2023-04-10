@@ -1,21 +1,21 @@
 const express = require('express');
 const router = express.Router();
 // reuire controller
-const gradeContoller = require("../controllers/gradeContollers");
+const gradeController = require("../controllers/gradeController");
 
 // add one grade
-router.post('/addgrade', gradeContoller.addGrade)
+router.post('/addgrade', gradeController.addGrade)
 
 // Remove one grade
-router.delete('/removegrade/:id', gradeContoller.removeGrade)
+router.delete('/removegrade/:id', gradeController.removeGrade)
 
 //get all grade
-router.get('/allgrades', gradeContoller.allGrades)
+router.get('/allgrades', gradeController.allGrades)
 
 // update grade by id
-router.put('/updategrade/:id', gradeContoller.updateGrade)
+router.put('/updategrade/:id', gradeController.updateGrade)
 
 //get grade by id
-router.get('/getgrade/:id', gradeContoller.getGrade)
+router.get('/getgrade/:id', gradeController.getGrade)
 
 module.exports = router;

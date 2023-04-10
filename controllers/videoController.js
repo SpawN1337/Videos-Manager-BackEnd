@@ -53,41 +53,44 @@ exports.search = async (req, res) => {
 
 //dayvideos
 exports.dayvideos = async (req, res) => {
-  var pipeline = [
-    {
-      $lookup:
+  // if (req.body.date) {
+    var pipeline = [
       {
-        from: "aircrafts",
-        localField: "aircraft",
-        foreignField: "_id",
-        as: "aircraft"
-      }
-    },
-    {
-      $set: {
-        aircraft: "$aircraft.nomAirCraft",
-      }
-    },
-    {
-      $project: {
-        name: "$name",
-        aircraft: "$aircraft",
-        place: "$place",
-        tag: "$tag",
-        date: { $dateToString: { format: "%Y-%m-%d", date: "$date" } }
-      }
-    }]
-  if ((req.body.date != null)) {
-    pipeline.unshift({ $match: { "date": { "$eq": new Date(req.body.date) } } });
-  }
-  try {
-    const videos = await Video.aggregate(pipeline);
-    res.status(200).json({ videos });
-  }
-  catch (err) {
-    console.log(err);
-    res.status(500).json({ message: 'Internal server error' });
-  }
+        $lookup:
+        {
+          from: "aircrafts",
+          localField: "aircraft",
+          foreignField: "_id",
+          as: "aircraft"
+        }
+      },
+      {
+        $set: {
+          aircraft: "$aircraft.nomAirCraft",
+        }
+      },
+      {
+        $project: {
+          name: "$name",
+          aircraft: "$aircraft",
+          place: "$place",
+          tag: "$tag",
+          date: { $dateToString: { format: "%Y-%m-%d", date: "$date" } }
+        }
+      }]
+    if ((req.body.date != null)) {
+      pipeline.unshift({ $match: { "date": { "$eq": new Date(req.body.date) } } });
+    }
+    try {
+      const videos = await Video.aggregate(pipeline);
+      res.status(200).json({ videos });
+    }
+    catch (err) {
+      console.log(err);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  // }
+  // else { res.status(500).json({ message: 'لم يتم تحديد اليوم' }); }
 };
 
 //get all videos
@@ -224,13 +227,13 @@ exports.postVideo = async (req, res) => {
 
 //Get disks
 exports.disk = async (req, res) => {
-    try {
-      const disks = await si.fsSize();
-      // const rootDisk = disks.find(disk => disk.mount === '/'); //routDisk
-       res.json(disks);
-    }
-    catch (err) {
-      console.log(err);
-      res.status(500).json({ message: 'Internal server error' });
-    }
+  try {
+    const disks = await si.fsSize();
+    // const rootDisk = disks.find(disk => disk.mount === '/'); //routDisk
+    res.json(disks);
   }
+  catch (err) {
+    console.log(err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}

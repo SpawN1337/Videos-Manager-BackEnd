@@ -29,8 +29,7 @@ router.get('/getvideos', VideoController.getVideos)
 router.get('/getupload/:id', VideoController.getVideo)
 
 //get disks
-// router.get('/disk', VideoController.diskslist )
-router.get('/disk', VideoController.disk)
+router.get('/disks', VideoController.disk)
 
 
 
