@@ -5,30 +5,32 @@ const si = require('systeminformation');
 
 //get all videos
 exports.search = async (req, res) => {
-  var pipeline = [
-    {
-      $lookup:
+  if (req.body.words != null || req.body.aircraft != null || req.body.aircraft != null || req.body.place != null
+    || req.body.start != null || req.body.end != null) {
+    var pipeline = [
       {
-        from: "aircrafts",
-        localField: "aircraft",
-        foreignField: "_id",
-        as: "aircraft"
-      }
-    },
-    {
-      $set: {
-        aircraft: "$aircraft.nomAirCraft",
-      }
-    },
-    {
-      $project: {
-        name: "$name",
-        aircraft: "$aircraft",
-        place: "$place",
-        tag: "$tag",
-        date: { $dateToString: { format: "%Y-%m-%d", date: "$date" } }
-      }
-    }]
+        $lookup:
+        {
+          from: "aircrafts",
+          localField: "aircraft",
+          foreignField: "_id",
+          as: "aircraft"
+        }
+      },
+      {
+        $set: {
+          aircraft: "$aircraft.nomAirCraft",
+        }
+      },
+      {
+        $project: {
+          name: "$name",
+          aircraft: "$aircraft",
+          place: "$place",
+          tag: "$tag",
+          date: { $dateToString: { format: "%Y-%m-%d", date: "$date" } }
+        }
+      }]
   if (req.body.aircraft != null) {
     pipeline.unshift({ $match: { "aircraft": mongoose.Types.ObjectId(req.body.aircraft) } });
   }
@@ -49,11 +51,13 @@ exports.search = async (req, res) => {
     console.log(err);
     res.status(500).json({ message: 'Internal server error' });
   }
+}else{res.status(500).json({ message: 'لم يتم تحديد معلومات البحث' });}
 };
 
 //dayvideos
 exports.dayvideos = async (req, res) => {
-  // if (req.body.date) {
+  console.log("date", req.body.date)
+  if (req.body.date) {
     var pipeline = [
       {
         $lookup:
@@ -89,8 +93,8 @@ exports.dayvideos = async (req, res) => {
       console.log(err);
       res.status(500).json({ message: 'Internal server error' });
     }
-  // }
-  // else { res.status(500).json({ message: 'لم يتم تحديد اليوم' }); }
+  }
+  else { res.status(500).json({ message: 'لم يتم تحديد اليوم' }); }
 };
 
 //get all videos
@@ -179,11 +183,11 @@ exports.removeVideo = async (req, res) => {
     fs.unlinkSync('./videos/' + video.filename);
     const deleteVideo = await Video.findByIdAndDelete(req.params.id)
 
-    res.json({ message: 'deleted Inspecstib successfully' });
+    res.json({ message: 'deleted Video successfully' });
   }
   catch (err) {
     console.log(err);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: 'لم يتم العثور على الفيديو لحذفه' });
   }
 }
 

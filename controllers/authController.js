@@ -39,7 +39,7 @@ exports.register = async (req, res) => {
     try {
         const userFound = await User.findOne({ username: req.body.username });
         if (userFound) {
-            res.status(400).send({ message: 'username already exist, please choose another username' })
+            res.status(400).send({ message: 'إسم المستخدم متواجدة قم بإختيار إسم آخر' })
         } else {
             const hashedPwd = await bcrypt.hash(req.body.password, 10);
             const createdUser = await User.create({
@@ -50,7 +50,7 @@ exports.register = async (req, res) => {
                 role: req.body.role,
                 password: hashedPwd,
             });
-            res.json({ message: 'register Successfully' });
+            res.json({ message: 'تمت الإضافة بنجاح' });
         }
     }
     catch (err) {
