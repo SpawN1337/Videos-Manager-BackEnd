@@ -4,7 +4,7 @@ const AirCraft = require('../models/airCraftSchema')
 exports.addAirCraft = async (req, res) => {
     try {
         const createdAirCraft = await AirCraft.create(req.body)
-        res.json(createdAirCraft);
+        res.status(200).json({ message: 'تمت الإضافة بنجاح' });
     }
     catch (err) {
         console.log(err);
@@ -16,7 +16,7 @@ exports.addAirCraft = async (req, res) => {
 exports.removeAirCraft = async (req, res) => {
     try {
         const deletedAirCraft = await AirCraft.findByIdAndDelete(req.params.id)
-        res.json({ message: 'deleted AirCraft successfully' });
+        res.json({ message: 'تمت عملية الحذف بنجاح' });
     }
     catch (err) {
         console.log(err);
@@ -51,8 +51,8 @@ exports.updateAirCraft = async (req, res) => {
 //Get AirCraft By id contoller
 exports.getAirCraft = async (req, res) => {
     try {
-        const AirCraft = await AirCraft.findById(req.params.id)
-        res.json(AirCraft);
+        const getAirCraft = await AirCraft.findById(req.params.id)
+        res.json(getAirCraft);
     }
     catch (err) {
         console.log(err);

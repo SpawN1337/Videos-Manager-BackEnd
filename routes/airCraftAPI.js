@@ -4,7 +4,7 @@ const router = express.Router();
 const airCraftController = require("../controllers/airCraftController");
 
 // add one airCraft
-router.post('/addaircraft', airCraftController.addAirCraft)
+router.post('/addairCraft', airCraftController.addAirCraft )
 
 // Remove one airCraft
 router.delete('/removeaircraft/:id', airCraftController.removeAirCraft)
