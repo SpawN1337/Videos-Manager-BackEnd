@@ -1,8 +1,15 @@
 const multer = require('multer')
-
+const fs = require('fs');
 const diskStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'videos');
+    const folderPath = req.body.disk + '/videos';
+    fs.mkdir(folderPath, { recursive: true }, (err) => {
+      if (err) {
+        cb(err);
+      } else {
+        cb(null, folderPath);
+      }
+    });
   },
   filename: (req, file, cb) => {
     const mimeType = file.mimetype.split('/');

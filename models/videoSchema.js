@@ -3,7 +3,8 @@ const Schema = mongoose.Schema;
 
 const videoSchema = mongoose.Schema({
   name: { type: String, required: true },
-  aircraft: { type: Schema.Types.ObjectId,ref:'airCraft' },
+  // aircraft: { type: Schema.Types.ObjectId,ref:'airCraft' },
+  aircraft: { type: String, required: true },
   place: { type: String, required: true },
   date: { type: Date, required: true },
   tag: {type: Array,default: [],required: true },

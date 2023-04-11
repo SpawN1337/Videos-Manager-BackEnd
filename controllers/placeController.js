@@ -4,7 +4,7 @@ const Place = require('../models/placeSchema')
 exports.addPlace = async (req, res) => {
     try {
         const createdPlace = await Place.create(req.body)
-        res.json(createdPlace);
+        res.status(200).json({ message: 'تمت الإضافة بنجاح' });
     }
     catch (err) {
         console.log(err);
@@ -16,7 +16,7 @@ exports.addPlace = async (req, res) => {
 exports.removePlace = async (req, res) => {
     try {
         const deletedPlace = await Place.findByIdAndDelete(req.params.id)
-        res.json({ message: 'deleted Place successfully' });
+        res.json({ message: 'تمت عملية الحذف بنجاح' });
     }
     catch (err) {
         console.log(err);
@@ -51,8 +51,8 @@ exports.updatePlace = async (req, res) => {
 //Get Place By id contoller
 exports.getPlace = async (req, res) => {
     try {
-        const Place = await Place.findById(req.params.id)
-        res.json(Place);
+        const getPlace = await Place.findById(req.params.id)
+        res.json(getPlace);
     }
     catch (err) {
         console.log(err);
