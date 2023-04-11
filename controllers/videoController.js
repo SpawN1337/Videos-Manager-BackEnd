@@ -200,7 +200,7 @@ exports.removeVideo = async (req, res) => {
       console.log(err);
     }
   }
-  
+
   // If the loop completes without finding the video file
   res.status(500).json({ message: 'لم يتم العثور على الفيديو لحذفه' });
 
@@ -238,28 +238,35 @@ exports.removeVideo = async (req, res) => {
 // }
 
 exports.postVideo = async (req, res) => {
-  const name = req.body.name;
-  const aircraft = req.body.aircraft;
-  const place = req.body.place;
-  const date = req.body.date;
-  const tag = req.body.tag.split(",");
-  const filename = req.file.filename;
-  const videoPath = 'videos/' + req.file.filename; // Note: set path dynamically
-  const video = new Video({
-    name,
-    aircraft,
-    place,
-    date,
-    tag,
-    filename,
-    videoPath,
-  });
-  const createdVideo = await video.save();
-  res.status(201).json({
-    video: {
-      ...createdVideo._doc,
-    },
-  });
+  
+    const name = req.body.name;
+    const aircraft = req.body.aircraft;
+    const place = req.body.place;
+    const date = req.body.date;
+    const tag = req.body.tag.split(",");
+    const filename = req.file.filename;
+    const videoPath = 'videos/' + req.file.filename; // Note: set path dynamically
+    const video = new Video({
+      name,
+      aircraft,
+      place,
+      date,
+      tag,
+      filename,
+      videoPath,
+    });
+    try {
+    const createdVideo = await video.save();
+    res.status(201).json({
+      video: {
+        ...createdVideo._doc,
+      },
+    });
+  }
+  catch (err) {
+    console.log(err);
+    res.status(500).json({ message: 'لم يتم العثور على الفيديو لحذفه' });
+  }
 };
 
 //Get disks
