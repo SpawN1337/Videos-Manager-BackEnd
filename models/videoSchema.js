@@ -12,4 +12,9 @@ const videoSchema = mongoose.Schema({
   filename : { type: String, required: true , unique: true },
   uploaded: { type: Date, default: Date.now },
 });
+videoSchema.index({
+  name: 'text',
+  place: 'text',
+  tag: 'text',
+});
 module.exports = mongoose.model('Video', videoSchema);

@@ -238,7 +238,9 @@ exports.removeVideo = async (req, res) => {
 // }
 
 exports.postVideo = async (req, res) => {
-  
+  console.log("body",req.body)
+  console.log("file",req.file)
+    const _id = req.body._id;
     const name = req.body.name;
     const aircraft = req.body.aircraft;
     const place = req.body.place;
@@ -247,6 +249,7 @@ exports.postVideo = async (req, res) => {
     const filename = req.file.filename;
     const videoPath = 'videos/' + req.file.filename; // Note: set path dynamically
     const video = new Video({
+      _id,
       name,
       aircraft,
       place,
@@ -265,7 +268,7 @@ exports.postVideo = async (req, res) => {
   }
   catch (err) {
     console.log(err);
-    res.status(500).json({ message: 'لم يتم العثور على الفيديو لحذفه' });
+    res.status(500).json({ message: 'فيديو بنفس الاسم موجود بالفعل' });
   }
 };
 
