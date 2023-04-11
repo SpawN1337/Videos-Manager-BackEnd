@@ -8,20 +8,20 @@ exports.search = async (req, res) => {
   if (req.body.words != null || req.body.aircraft != null || req.body.aircraft != null || req.body.place != null
     || req.body.start != null || req.body.end != null) {
     var pipeline = [
-      {
-        $lookup:
-        {
-          from: "aircrafts",
-          localField: "aircraft",
-          foreignField: "_id",
-          as: "aircraft"
-        }
-      },
-      {
-        $set: {
-          aircraft: "$aircraft.nomAirCraft",
-        }
-      },
+      // {
+      //   $lookup:
+      //   {
+      //     from: "aircrafts",
+      //     localField: "aircraft",
+      //     foreignField: "_id",
+      //     as: "aircraft"
+      //   }
+      // },
+      // {
+      //   $set: {
+      //     aircraft: "$aircraft.nomAirCraft",
+      //   }
+      // },
       {
         $project: {
           name: "$name",
@@ -31,48 +31,48 @@ exports.search = async (req, res) => {
           date: { $dateToString: { format: "%Y-%m-%d", date: "$date" } }
         }
       }]
-  if (req.body.aircraft != null) {
-    pipeline.unshift({ $match: { "aircraft": mongoose.Types.ObjectId(req.body.aircraft) } });
-  }
-  if ((req.body.start != null)) {
-    pipeline.unshift({ $match: { "date": { "$gte": new Date(req.body.start) } } });
-  }
-  if (req.body.end != null) {
-    pipeline.unshift({ $match: { "date": { "$lte": new Date(req.body.end) } } });
-  }
-  if (req.body.words != null) {
-    pipeline.unshift({ $match: { $text: { $search: req.body.words } } });
-  }
-  try {
-    const videos = await Video.aggregate(pipeline);
-    res.status(200).json({ videos });
-  }
-  catch (err) {
-    console.log(err);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-}else{res.status(500).json({ message: 'لم يتم تحديد معلومات البحث' });}
+    if (req.body.aircraft != null) {
+      // pipeline.unshift({ $match: { "aircraft": mongoose.Types.ObjectId(req.body.aircraft) } });
+      pipeline.unshift({ $match: { "aircraft": req.body.aircraft } });
+    }
+    if ((req.body.start != null)) {
+      pipeline.unshift({ $match: { "date": { "$gte": new Date(req.body.start) } } });
+    }
+    if (req.body.end != null) {
+      pipeline.unshift({ $match: { "date": { "$lte": new Date(req.body.end) } } });
+    }
+    if (req.body.words != null) {
+      pipeline.unshift({ $match: { $text: { $search: req.body.words } } });
+    }
+    try {
+      const videos = await Video.aggregate(pipeline);
+      res.status(200).json({ videos });
+    }
+    catch (err) {
+      console.log(err);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  } else { res.status(500).json({ message: 'لم يتم تحديد معلومات البحث' }); }
 };
 
 //dayvideos
 exports.dayvideos = async (req, res) => {
-  console.log("date", req.body.date)
   if (req.body.date) {
     var pipeline = [
-      {
-        $lookup:
-        {
-          from: "aircrafts",
-          localField: "aircraft",
-          foreignField: "_id",
-          as: "aircraft"
-        }
-      },
-      {
-        $set: {
-          aircraft: "$aircraft.nomAirCraft",
-        }
-      },
+      // {
+      //   $lookup:
+      //   {
+      //     from: "aircrafts",
+      //     localField: "aircraft",
+      //     foreignField: "_id",
+      //     as: "aircraft"
+      //   }
+      // },
+      // {
+      //   $set: {
+      //     aircraft: "$aircraft.nomAirCraft",
+      //   }
+      // },
       {
         $project: {
           name: "$name",
@@ -130,8 +130,16 @@ exports.getVideos = async (req, res) => {
 
 //watch video
 exports.getVideo = async (req, res) => {
+  const disks = await si.fsSize();
   const video = await Video.findById(req.params.id)
-  filePath = video.videoPath
+  for (const i in disks) {
+    filePath = disks[i].mount + "/" + video.videoPath;
+    if (fs.existsSync(filePath)) {
+      filePath = filePath;
+      break;
+    }
+  }
+
   try {
     if (!filePath) {
       return res.status(500).json({ message: 'لم يتم العثور على الفيديو' });
@@ -178,17 +186,42 @@ exports.getVideo = async (req, res) => {
 
 //remove by Id Inspecstib Contoller
 exports.removeVideo = async (req, res) => {
-  try {
-    const video = await Video.findById(req.params.id)
-    fs.unlinkSync('./videos/' + video.filename);
-    const deleteVideo = await Video.findByIdAndDelete(req.params.id)
+  const disks = await si.fsSize();
+  const video = await Video.findById(req.params.id)
+  for (const i in disks) {
+    try {
+      const filePath = disks[i].mount + '/' + video.videoPath;
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+        const deleteVideo = await Video.findByIdAndDelete(req.params.id);
+        return res.json({ message: 'Deleted video successfully' });
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+  
+  // If the loop completes without finding the video file
+  res.status(500).json({ message: 'لم يتم العثور على الفيديو لحذفه' });
 
-    res.json({ message: 'deleted Video successfully' });
-  }
-  catch (err) {
-    console.log(err);
-    res.status(500).json({ message: 'لم يتم العثور على الفيديو لحذفه' });
-  }
+  // for (const i in disks) {
+  //   try {
+
+  //     filePath = disks[i].mount + "/" + video.videoPath;
+  //     if (fs.existsSync(filePath)) {
+  //       fs.unlinkSync(filePath);
+  //       const deleteVideo = await Video.findByIdAndDelete(req.params.id)
+  //       res.json({ message: 'deleted Video successfully' });
+  //     }
+  //     // else{res.status(500).json({ message: 'لم يتم العثور على الفيديو لحذفه' });}
+
+
+  //   }
+  //   catch (err) {
+  //     console.log(err);
+  //   }
+  //   res.status(500).json({ message: 'لم يتم العثور على الفيديو لحذفه' });
+  // }
 }
 
 //update Consominfo by id controller
